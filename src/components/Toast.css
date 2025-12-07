@@ -1,0 +1,29 @@
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px); 
+  
+  background-color: #2E003E; 
+  border: 1px solid #8a2ddc; 
+  color: #fff;
+  
+  padding: 12px 24px;
+  border-radius: 50px; 
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  z-index: 2000; 
+  
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
+  pointer-events: none; 
+}
+
+.toast--visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}

@@ -44,6 +44,11 @@ export const useCart = () => {
     setCart(cart.filter(item => item.id !== id));
   };
 
+  // Vaciar carrito
+  const clearCart = () => {
+    setCart([]);
+  };
+
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
@@ -52,6 +57,7 @@ export const useCart = () => {
     addToCart,
     removeFromCart,
     deleteFromCart, 
+    clearCart,
     cartCount,
     total
   };

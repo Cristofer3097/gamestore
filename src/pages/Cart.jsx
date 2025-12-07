@@ -1,8 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Recommended from '../components/Recommended';
 import './Cart.css';
 
-const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, total }) => {
+const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, onCheckout, total }) => {
+  const navigate = useNavigate();
+
+  
+    
+    const handleBuyButton = () => {
+    onCheckout();
+    navigate('/'); 
+  };
 
   if (cart.length === 0) {
     return (
@@ -70,7 +79,9 @@ const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, total }) => {
             <span>Total</span>
             <span>${total.toFixed(2)}</span>
           </div>
-          <button className="btn-checkout">Finalizar Compra</button>
+          <button className="btn-checkout" onClick={handleBuyButton}>
+            Finalizar Compra
+          </button>
         </div>
       </div>
 

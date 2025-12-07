@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { gamesMock } from './data/games';
 import { useCart } from './hooks/useCart';
@@ -9,10 +9,51 @@ import Cart from './pages/Cart';
 import Catalog from './pages/Catalog';
 import { useFavorites } from './hooks/useFavorites';
 import Favorites from './pages/Favorites';
+import Toast from './components/Toast';
 
 function App() {
-  const { cart, addToCart, removeFromCart, deleteFromCart, total, cartCount } = useCart();
+  const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, total, cartCount } = useCart();
   const { favorites, toggleFavorite, isFavorite, moveFavorite } = useFavorites();
+
+  const [toastMsg, setToastMsg] = useState('');
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const toastTimeoutRef = useRef(null);
+
+  const showToast = (message) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+      setIsToastVisible(false); 
+      setTimeout(() => {
+         setToastMsg(message);
+         setIsToastVisible(true);
+      }, 50); 
+    } else {
+      setToastMsg(message);
+      setIsToastVisible(true);
+    }
+
+    toastTimeoutRef.current = setTimeout(() => {
+      setIsToastVisible(false);
+      toastTimeoutRef.current = null;
+    }, 2000);
+  };
+  const handleAddToCart = (game) => {
+    addToCart(game);
+    showToast(`🛒 ${game.title} añadido al carrito`);
+  };
+
+  const handleToggleFavorite = (game) => {
+    const alreadyFav = isFavorite(game.id);
+    toggleFavorite(game);
+    
+    if (!alreadyFav) {
+      showToast("❤️ ¡Añadido a lista de deseos!");
+    }
+  };
+  const handleCheckout = () => {
+    showToast("🎉 ¡Gracias por tu pedido! Compra finalizada.");
+    clearCart();
+  };
   
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
@@ -68,16 +109,31 @@ function App() {
         availablePlatforms={allPlatforms}
         favCount={favorites.length} 
       />
+      <Toast message={toastMsg} isVisible={isToastVisible} />
       
       <Routes>
         <Route 
           path="/" 
-          element={<Home games={filteredGames} onAdd={addToCart} toggleFavorite={toggleFavorite} isFavorite={isFavorite} />}        
-          />
+          element={
+            <Home 
+              games={filteredGames} 
+              onAdd={handleAddToCart} 
+              toggleFavorite={handleToggleFavorite} 
+              isFavorite={isFavorite} 
+            />
+          } 
+        />
 
         <Route 
           path="/catalogo" 
-          element={<Catalog games={filteredGames} addToCart={addToCart} toggleFavorite={toggleFavorite} isFavorite={isFavorite} />} 
+          element={
+            <Catalog 
+              games={filteredGames} 
+              addToCart={handleAddToCart} 
+              toggleFavorite={handleToggleFavorite} 
+              isFavorite={isFavorite} 
+            />
+          } 
         />
 
         <Route 
@@ -85,15 +141,25 @@ function App() {
           element={
             <Favorites 
               favorites={favorites} 
-              onAdd={addToCart} 
-              onRemove={(game) => toggleFavorite(game)}
+              onAdd={handleAddToCart} 
+              onRemove={(game) => toggleFavorite(game)} 
               onMove={moveFavorite}
             />
           } 
         />
-        <Route 
+       <Route 
           path="/cart" 
-          element={<Cart cart={cart} addToCart={addToCart} removeFromCart={removeFromCart} deleteFromCart={deleteFromCart} total={total} />}        />
+          element={
+            <Cart 
+              cart={cart} 
+              addToCart={handleAddToCart}
+              removeFromCart={removeFromCart} 
+              deleteFromCart={deleteFromCart} 
+              onCheckout={handleCheckout} 
+              total={total} 
+            />
+          } 
+        />
       </Routes>
     </Router>
   );

@@ -60,6 +60,7 @@
   align-items: center;
   gap: 8px;
   font-weight: bold;
+  margin-left: 20px;
 }
 .header-icon-link {
   text-decoration: none;
@@ -75,11 +76,11 @@
 
 .header-icon-link:hover {
   transform: scale(1.1);
-  color: #ffcc00;
+  color: #ff0000
 }
 .header-cart:hover, .logo:hover {
   opacity: 0.9;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  color: #ffcc00;
 }
 
 /* Filtros */
