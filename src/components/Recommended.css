@@ -1,71 +1,97 @@
+
+:root {
+  --card-bg: #2a2a2a;      
+  --card-text: #ffffff;     
+  --color-primary: #8a2ddc; 
+  --color-accent: #4ade80;  
+}
+
 .recommended {
   margin-top: 4rem;
 }
 
 .recommended__title {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid #eee;
+  border-bottom: 1px solid #444;
   padding-bottom: 0.5rem;
+  color: white;
 }
 
 .recommended__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
 }
 
 .rec-card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
-  color: #333;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
 }
 
 .rec-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  border-color: #555;
 }
 
 .rec-card__img {
   width: 100%;
-  height: 150px;
-  object-fit: cover;
+  height: 180px; 
+  object-fit: contain;
+  background-color: #151515;
+  padding: 10px;
+  border-bottom: 1px solid #333;
 }
 
 .rec-card__info {
-  padding: 1rem;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 10px;
+  flex-grow: 1;
+  text-align: left;
 }
 
 .rec-card__title {
   margin: 0;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1rem;
-  white-space: nowrap;
+  color: var(--card-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  height: 1.8em; 
 }
 
 .rec-card__price {
-  color: #e74c3c;
+  color: var(--color-accent); 
   font-weight: bold;
-  margin: 0;
+  font-size: 1.3rem;
+  margin-top: auto; 
 }
 
 .rec-card__btn {
-  background-color: #3498db;
+  background-color: var(--color-primary); 
   color: white;
   border: none;
-  padding: 0.5rem;
+  padding: 10px;
   border-radius: 4px;
   cursor: pointer;
-  margin-top: 0.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+  width: 100%;
 }
 
 .rec-card__btn:hover {
-  background-color: #2980b9;
+  background-color: #6a1cb0;
 }

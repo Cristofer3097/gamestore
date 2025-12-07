@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './GameCard.css';
 
-const GameCard = ({ game, onAdd }) => {
-  const [isFav, setIsFav] = useState(false);
+const GameCard = ({ game, onAdd, toggleFavorite, isFavorite }) => {
+    const isFav = isFavorite ? isFavorite(game.id) : false
 
   return (
     <article className="producto">
       <button 
         className={`producto__fav-btn ${isFav ? 'producto__fav-btn--active' : ''}`}
-        onClick={() => setIsFav(!isFav)}
-        title="Añadir a favoritos"
+        onClick={() => toggleFavorite && toggleFavorite(game)}
+        title={isFav ? "Quitar de favoritos" : "Añadir a favoritos"}
       >
         {isFav ? '❤️' : '🤍'}
       </button>

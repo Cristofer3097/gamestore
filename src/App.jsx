@@ -7,9 +7,12 @@ import Header from './components/header/Header';
 import Home from './pages/Home'; 
 import Cart from './pages/Cart';
 import Catalog from './pages/Catalog';
+import { useFavorites } from './hooks/useFavorites';
+import Favorites from './pages/Favorites';
 
 function App() {
   const { cart, addToCart, removeFromCart, deleteFromCart, total, cartCount } = useCart();
+  const { favorites, toggleFavorite, isFavorite, moveFavorite } = useFavorites();
   
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
@@ -63,23 +66,34 @@ function App() {
         setFilters={setFilters}
         availableGenres={allGenres}
         availablePlatforms={allPlatforms}
+        favCount={favorites.length} 
       />
       
       <Routes>
         <Route 
           path="/" 
-          element={<Home games={filteredGames} onAdd={addToCart} />} 
-        />
+          element={<Home games={filteredGames} onAdd={addToCart} toggleFavorite={toggleFavorite} isFavorite={isFavorite} />}        
+          />
 
         <Route 
           path="/catalogo" 
-          element={<Catalog games={filteredGames} addToCart={addToCart} />} 
+          element={<Catalog games={filteredGames} addToCart={addToCart} toggleFavorite={toggleFavorite} isFavorite={isFavorite} />} 
         />
 
         <Route 
-          path="/cart" 
-          element={<Cart cart={cart} addToCart={addToCart} removeFromCart={removeFromCart} deleteFromCart={deleteFromCart} total={total} />} 
+          path="/favorites" 
+          element={
+            <Favorites 
+              favorites={favorites} 
+              onAdd={addToCart} 
+              onRemove={(game) => toggleFavorite(game)}
+              onMove={moveFavorite}
+            />
+          } 
         />
+        <Route 
+          path="/cart" 
+          element={<Cart cart={cart} addToCart={addToCart} removeFromCart={removeFromCart} deleteFromCart={deleteFromCart} total={total} />}        />
       </Routes>
     </Router>
   );

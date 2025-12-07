@@ -2,8 +2,7 @@ import React from 'react';
 import GameCard from '../components/GameCard';
 import './Catalog.css';
 
-const Catalog = ({ games, addToCart }) => {
-  
+const Catalog = ({ games, addToCart, toggleFavorite, isFavorite }) => {  
   return (
     <div className="catalog">
       <h2 className="catalog__title">Catálogo Completo</h2>
@@ -17,6 +16,8 @@ const Catalog = ({ games, addToCart }) => {
               key={game.id} 
               game={game} 
               onAdd={addToCart} 
+              toggleFavorite={toggleFavorite}
+              isFavorite={isFavorite}
             />
           ))
         ) : (

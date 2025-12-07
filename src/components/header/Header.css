@@ -61,7 +61,22 @@
   gap: 8px;
   font-weight: bold;
 }
+.header-icon-link {
+  text-decoration: none;
+  color: var(--text-white);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-left: 20px; 
+  transition: transform 0.2s;
+}
 
+.header-icon-link:hover {
+  transform: scale(1.1);
+  color: #ffcc00;
+}
 .header-cart:hover, .logo:hover {
   opacity: 0.9;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);

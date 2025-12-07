@@ -7,7 +7,7 @@ export const gamesMock = [
     // CAMBIO: Ahora usamos corchetes [] para permitir varios
     genres: ["Aventura", "RPG", "Mundo Abierto"], 
     platforms: ["Nintendo Switch", "Wii U"],
-    image: "https://ruta-a-tu-imagen..." 
+    image: "https://m.media-amazon.com/images/I/81KGsbq8ekL._AC_UF1000,1000_QL80_.jpg" 
   },
   {
     id: 2,
@@ -15,7 +15,7 @@ export const gamesMock = [
     price: 69.99,
     genres: ["Acción", "Aventura"],
     platforms: ["PS5", "PS4"],
-    image: "..."
+    image: "https://uvejuegos.com/img/caratulas/66234/gowps4.jpg"
   },
   // ... actualiza el resto de tus juegos con este formato
 ];

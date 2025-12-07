@@ -1,0 +1,144 @@
+.favorites-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+  color: white;
+}
+
+.fav-title {
+  border-bottom: 2px solid #444;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.fav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+.fav-item {
+  display: flex;
+  background-color: #2a2a2a; 
+  border: 1px solid #444;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 15px;
+  align-items: center;
+  gap: 20px;
+  transition: transform 0.2s;
+}
+
+.fav-item:hover {
+  border-color: #646cff; 
+}
+
+/* Columna Rango (#1, #2...) */
+.fav-rank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  border-right: 1px solid #444;
+  padding-right: 15px;
+}
+
+.rank-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #888;
+}
+
+.rank-controls {
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+}
+
+.rank-controls button {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px;
+}
+.rank-controls button:hover { color: white; }
+.rank-controls button:disabled { color: #444; cursor: default; }
+
+.fav-image img {
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.fav-info {
+  flex-grow: 1;
+}
+
+.fav-info h3 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.fav-meta {
+  margin: 3px 0;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.fav-price {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #4ade80; 
+}
+
+.fav-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 160px;
+}
+
+.fav-add-btn {
+  background-color: #f0c14b; 
+  color: #111;
+  border: none;
+  padding: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.fav-add-btn:hover { background-color: #ddb347; }
+
+.fav-remove-btn {
+  background-color: transparent;
+  border: 1px solid #555;
+  color: #ccc;
+  padding: 8px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.fav-remove-btn:hover { border-color: #ff5555; color: #ff5555; }
+
+.favorites-empty {
+  text-align: center;
+  margin-top: 100px;
+  color: white;
+}
+.back-btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #646cff;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
