@@ -58,7 +58,7 @@ const GameCard = ({ game, onAdd, toggleFavorite, isFavorite }) => {
           
           <button 
             className="producto__btn"
-            onClick={() => {
+            onClick={(e) => { // <--- CORREGIDO: Agregamos (e) aquí
               stopPropagation(e);
               onAdd(game);
             }}
