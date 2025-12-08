@@ -1,14 +1,28 @@
 import React from 'react';
 import './GameCard.css';
+import { useNavigate } from 'react-router-dom';
 
 const GameCard = ({ game, onAdd, toggleFavorite, isFavorite }) => {
-    const isFav = isFavorite ? isFavorite(game.id) : false
+
+  const navigate = useNavigate();
+  const isFav = isFavorite ? isFavorite(game.id) : false
+
+  const handleCardClick = () => {
+    navigate(`/game/${game.id}`);
+  };
+
+  const stopPropagation = (e) => {
+    e.stopPropagation();
+  };
 
   return (
-    <article className="producto">
+    <article className="producto" onClick={handleCardClick} style={{cursor: 'pointer'}}>
       <button 
         className={`producto__fav-btn ${isFav ? 'producto__fav-btn--active' : ''}`}
-        onClick={() => toggleFavorite && toggleFavorite(game)}
+        onClick={(e) => {
+          stopPropagation(e); 
+          toggleFavorite && toggleFavorite(game);
+        }}
         title={isFav ? "Quitar de favoritos" : "Añadir a favoritos"}
       >
         {isFav ? 
@@ -44,7 +58,10 @@ const GameCard = ({ game, onAdd, toggleFavorite, isFavorite }) => {
           
           <button 
             className="producto__btn"
-            onClick={() => onAdd(game)}
+            onClick={() => {
+              stopPropagation(e);
+              onAdd(game);
+            }}
           >
             Añadir al Carrito
           </button>

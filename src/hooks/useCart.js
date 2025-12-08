@@ -7,7 +7,8 @@ export const useCart = () => {
 
     return parsedCart.map(item => ({
       ...item,
-      quantity: item.quantity || 1 
+      quantity: item.quantity || 1,
+      selectedPlatform: item.selectedPlatform || (item.platforms && item.platforms.length > 0 ? item.platforms[0] : 'N/A')
     }));
   });
   
@@ -26,8 +27,14 @@ export const useCart = () => {
           : item
       ));
     } else {
-      setCart([...cart, { ...game, quantity: 1 }]);
+      const defaultPlatform = game.platforms && game.platforms.length > 0 ? game.platforms[0] : 'N/A';
+      setCart([...cart, { ...game, quantity: 1, selectedPlatform: defaultPlatform }]);
     }
+  };
+  const updatePlatform = (id, newPlatform) => {
+    setCart(cart.map(item => 
+      item.id === id ? { ...item, selectedPlatform: newPlatform } : item
+    ));
   };
 
   // Restar cantidad
@@ -55,6 +62,7 @@ export const useCart = () => {
   return {
     cart,
     addToCart,
+    updatePlatform,
     removeFromCart,
     deleteFromCart, 
     clearCart,

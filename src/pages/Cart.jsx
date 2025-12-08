@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Recommended from '../components/Recommended';
 import './Cart.css';
 
-const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, onCheckout, total }) => {
+const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, updatePlatform, onCheckout, total }) => {
   const navigate = useNavigate();
 
-  
-    
     const handleBuyButton = () => {
     onCheckout();
     navigate('/'); 
@@ -41,7 +39,21 @@ const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, onCheckout, tot
               
               <div className="cart-item__details">
                 <h4 className="cart-item__title">{item.title}</h4>
-                <p className="cart-item__platform">{item.platform}</p>
+                <div className="cart-item__platform-select">
+                  <label>Versión:</label>
+                  <select 
+                    value={item.selectedPlatform} 
+                    onChange={(e) => updatePlatform(item.id, e.target.value)}
+                    className="platform-select"
+                  >
+                    {/* Solo mostramos las consolas disponibles para ESTE juego */}
+                    {item.platforms && item.platforms.map((platform) => (
+                      <option key={platform} value={platform}>
+                        {platform}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <button 
                   className="btn-delete"
                   onClick={() => deleteFromCart(item.id)}

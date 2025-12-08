@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useState, useMemo, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { gamesMock } from './data/games';
@@ -7,12 +6,13 @@ import Header from './components/header/Header';
 import Home from './pages/Home'; 
 import Cart from './pages/Cart';
 import Catalog from './pages/Catalog';
+import GameDescription from './pages/GameDescription';
 import { useFavorites } from './hooks/useFavorites';
 import Favorites from './pages/Favorites';
 import Toast from './components/Toast';
 
 function App() {
-  const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, total, cartCount } = useCart();
+const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatform, total, cartCount } = useCart();
   const { favorites, toggleFavorite, isFavorite, moveFavorite } = useFavorites();
 
   const [toastMsg, setToastMsg] = useState('');
@@ -147,6 +147,16 @@ function App() {
             />
           } 
         />
+        <Route 
+          path="/game/:id" 
+          element={
+            <GameDescription 
+              onAdd={handleAddToCart} 
+              toggleFavorite={handleToggleFavorite}
+              isFavorite={isFavorite}
+            />
+          } 
+        />
        <Route 
           path="/cart" 
           element={
@@ -155,6 +165,7 @@ function App() {
               addToCart={handleAddToCart}
               removeFromCart={removeFromCart} 
               deleteFromCart={deleteFromCart} 
+              updatePlatform={updatePlatform}
               onCheckout={handleCheckout} 
               total={total} 
             />

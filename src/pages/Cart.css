@@ -211,3 +211,42 @@
     font-size: 2rem;
     margin-bottom: 1rem;
 }
+
+.cart-item__platform-select {
+  margin: 8px 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cart-item__platform-select label {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.platform-select {
+  background-color: #1a1a1a;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.platform-select:hover {
+  border-color: #8a2ddc;
+}
+
+.platform-select:focus {
+  border-color: #8a2ddc;
+  box-shadow: 0 0 5px rgba(138, 45, 220, 0.5);
+}
+
+.platform-select option {
+  background-color: #2a2a2a;
+  color: white;
+}
