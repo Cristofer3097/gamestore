@@ -8,7 +8,7 @@ const Recommended = ({ onAdd }) => {
   const randomGames = useMemo(() => {
     return [...gamesMock]
       .sort(() => 0.5 - Math.random())
-      .slice(0, 4);
+      .slice(0, 5);
   }, []);
 
   return (

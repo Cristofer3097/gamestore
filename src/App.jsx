@@ -6,10 +6,12 @@ import Header from './components/header/Header';
 import Home from './pages/Home'; 
 import Cart from './pages/Cart';
 import Catalog from './pages/Catalog';
+import Returns from './pages/Returns';
 import GameDescription from './pages/GameDescription';
 import { useFavorites } from './hooks/useFavorites';
 import Favorites from './pages/Favorites';
 import Toast from './components/Toast';
+import Footer from './components/Footer';
 
 function App() {
 const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatform, total, cartCount } = useCart();
@@ -53,6 +55,10 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
   const handleCheckout = () => {
     showToast("🎉 ¡Gracias por tu pedido! Compra finalizada.");
     clearCart();
+  };
+
+  const handleReturnToast = (message) => {
+    showToast(message);
   };
   
   const [search, setSearch] = useState("");
@@ -110,7 +116,7 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
         favCount={favorites.length} 
       />
       <Toast message={toastMsg} isVisible={isToastVisible} />
-      
+      <div style={{ minHeight: '80vh' }}>
       <Routes>
         <Route 
           path="/" 
@@ -157,6 +163,12 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
             />
           } 
         />
+
+        <Route 
+          path="/returns" 
+          element={<Returns showToast={handleReturnToast} />} 
+        />
+
        <Route 
           path="/cart" 
           element={
@@ -172,6 +184,11 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
           } 
         />
       </Routes>
+
+
+      </div>
+
+      <Footer />
     </Router>
   );
 }

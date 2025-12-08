@@ -35,7 +35,7 @@ const FilterMenu = ({ isOpen, onClose, filters, setFilters, uniqueGenres, unique
 
       {/* Opción INICIO / RESET */}
       <button className="reset-btn" onClick={handleReset}>
-        🏠 Inicio (Ver todo)
+        🏠 Inicio
       </button>
 
       <hr className="separator" />

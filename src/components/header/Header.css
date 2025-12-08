@@ -117,3 +117,33 @@
   z-index: 999;
   backdrop-filter: blur(3px); 
 }
+
+.header-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: white;
+  filter: drop-shadow(0 0 5px rgba(138, 45, 220, 0.3));
+  transition: all 0.3s ease;
+}
+
+.header-logo-container:hover {
+  filter: drop-shadow(0 0 8px rgba(138, 45, 220, 0.6)) drop-shadow(0 0 15px rgba(74, 222, 128, 0.4));
+  transform: scale(1.02);
+}
+
+.logo-icon {
+  color: #8a2ddc;
+}
+
+.logo-text {
+  font-weight: 800; 
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  font-family: 'Montserrat', sans-serif; 
+}
+
+.logo-accent {
+  color: #4ade80; 
+}

@@ -57,11 +57,18 @@ const Header = ({ search, setSearch, filters, setFilters, availableGenres, avail
             </div>
           )}
 
-          <div className="logo" >
-            <Link to="/catalogo" className="header-logo">
-            GAME STORE</Link>
-            </div>
-          
+          <div className="logo">
+            <Link to="/" className="header-logo-container">
+            <svg xmlns="http://www.w3.org/2000/svg" className="logo-icon" width="32" height="32" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M2 6m0 2a2 2 0 0 1 2 -2h16a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-16a2 2 0 0 1 -2 -2z" />
+              <path d="M6 12h4m-2 -2v4" />
+              <path d="M15 11l0 .01" />
+              <path d="M18 13l0 .01" />
+              </svg>
+          <span className="logo-text">GAME <span className="logo-accent">STORE</span></span>
+          </Link>
+          </div>
         </div>
 
         <div className="header-center">
