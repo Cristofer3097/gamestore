@@ -5,7 +5,7 @@ export const gamesMock = [
     title: "The Legend of Zelda: Breath of the Wild",
     price: 59.99,
     genres: ["Aventura", "RPG", "Mundo Abierto"], 
-    platforms: ["Nintendo Switch", "Wii U", "Nintendo Switch 2"],
+    platforms: ["Nintendo Switch", "Nintendo Switch 2" , "Wii U"],
     image: "https://m.media-amazon.com/images/I/81KGsbq8ekL._AC_UF1000,1000_QL80_.jpg", 
     description: "Olvida todo lo que sabes sobre los juegos de The Legend of Zelda. Entra en un mundo de descubrimientos, exploración y aventura en The Legend of Zelda: Breath of the Wild, un nuevo juego de la aclamada serie que rompe con las convenciones."
   },

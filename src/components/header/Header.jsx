@@ -7,7 +7,7 @@ const Header = ({ search, setSearch, filters, setFilters, availableGenres, avail
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   
-  const showFilterBtn = location.pathname === '/' || location.pathname === '/catalogo';
+  const showFilterBtn = location.pathname === '/catalogo';
 
   return (
     <>
