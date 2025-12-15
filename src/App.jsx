@@ -61,29 +61,30 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
     showToast(message);
   };
   
+  // Filtros y Búsqueda
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     minPrice: 0,
     maxPrice: 100, 
     genres: [],
-    platforms: []
+    platforms: [],
+    sortOrder: 'default'
   });
 
   const safeGames = gamesMock || [];
-
   const allGenres = [...new Set(safeGames.flatMap(g => g.genres || []))];
   const allPlatforms = [...new Set(safeGames.flatMap(g => g.platforms || []))];
 
 
   const filteredGames = useMemo(() => {
-    return safeGames.filter(game => {
-
-      
+    let result = safeGames.filter(game => {
       const gameTitle = game.title ? game.title.toLowerCase() : "";
       const searchTerm = search.toLowerCase();
       const gamePrice = game.price || 0;
       const gameGenres = game.genres || [];  
       const gamePlatforms = game.platforms || [];
+
+      
 
       // 1. Filtro Buscador (Texto)
       const matchesSearch = gameTitle.includes(searchTerm);
@@ -99,9 +100,35 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
       const matchesPlatform = filters.platforms.length === 0 || 
                               gamePlatforms.some(p => filters.platforms.includes(p));
 
-      return matchesSearch && matchesPrice && matchesGenre && matchesPlatform;
-    });
-  }, [search, filters, safeGames]);
+      return (
+      gameTitle.includes(searchTerm) &&
+      (gamePrice >= filters.minPrice && gamePrice <= filters.maxPrice) &&
+      (filters.genres.length === 0 || gameGenres.some(g => filters.genres.includes(g))) &&
+      (filters.platforms.length === 0 || gamePlatforms.some(p => filters.platforms.includes(p)))
+    );
+  });
+
+  // 3. APLICAR ORDENAMIENTO (NUEVO BLOQUE)
+  switch (filters.sortOrder) {
+    case 'az':
+      result.sort((a, b) => a.title.localeCompare(b.title));
+      break;
+    case 'za':
+      result.sort((a, b) => b.title.localeCompare(a.title));
+      break;
+    case 'lowHigh':
+      result.sort((a, b) => a.price - b.price);
+      break;
+    case 'highLow':
+      result.sort((a, b) => b.price - a.price);
+      break;
+    default: // 'default' = Destacados (por ID)
+      result.sort((a, b) => a.id - b.id);
+      break;
+  }
+
+  return result;
+}, [search, filters, safeGames]);
 
   return (
     <Router>
@@ -138,6 +165,8 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
               addToCart={handleAddToCart} 
               toggleFavorite={handleToggleFavorite} 
               isFavorite={isFavorite} 
+              filters={filters}      
+              setFilters={setFilters}
             />
           } 
         />
