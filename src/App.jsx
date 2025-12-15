@@ -141,6 +141,7 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
         availableGenres={allGenres}
         availablePlatforms={allPlatforms}
         favCount={favorites.length} 
+        allGames={gamesMock}
       />
       <Toast message={toastMsg} isVisible={isToastVisible} />
       <div style={{ minHeight: '80vh' }}>

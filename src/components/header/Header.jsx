@@ -1,13 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import FilterMenu from './FilterMenu';
 import './Header.css';
+import SearchResults from './SearchResults';
 
-const Header = ({ search, setSearch, filters, setFilters, availableGenres, availablePlatforms, cartCount, favCount }) => {
+const Header = ({ search, setSearch, filters, setFilters, availableGenres, availablePlatforms, cartCount, favCount, allGames }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
   const location = useLocation();
-  
   const showFilterBtn = location.pathname === '/catalogo';
+
+  const foundGames = search.length > 0 
+    ? allGames.filter(g => g.title.toLowerCase().includes(search.toLowerCase())) 
+    : [];
+
+    useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -24,11 +42,10 @@ const Header = ({ search, setSearch, filters, setFilters, availableGenres, avail
           {/* BOTÓN DE FILTRO  */}
           {showFilterBtn && (
             <div className="filter-container">
-              <button 
+               <button 
                 className={`filter-toggle-btn ${isMenuOpen ? 'active' : ''}`}
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                title="Filtros"
-              >
+               >
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
                   width="24" 
@@ -72,13 +89,27 @@ const Header = ({ search, setSearch, filters, setFilters, availableGenres, avail
         </div>
 
         <div className="header-center">
+        <div className="search-wrapper" ref={searchRef}>
           <input 
-            type="text" 
-            placeholder="Buscar juegos..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="header-search"
-          />
+          type="text" 
+          placeholder="Buscar juegos..." 
+          value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setShowResults(true); 
+              }}
+              onFocus={() => setShowResults(true)} 
+              className="header-search"
+            />
+
+            {search.length > 0 && showResults && (
+               <SearchResults 
+                  results={foundGames} 
+                  onClose={() => setShowResults(false)} 
+               />
+            )}
+          </div>
+
         </div>
 
         <div className="header-right">

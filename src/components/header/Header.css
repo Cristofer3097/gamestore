@@ -31,9 +31,14 @@
   justify-content: center;
 }
 
-.header-search {
+.search-wrapper {
+  position: relative;
   width: 100%;
   max-width: 400px;
+}
+
+.header-search {
+  width: 100%;       
   padding: 10px 20px;
   border-radius: 50px; 
   border: 1px solid rgba(255, 255, 255, 0.2); 
@@ -41,6 +46,7 @@
   color: white;
   outline: none;
   transition: all 0.3s ease;
+  box-sizing: border-box; 
 }
 
 .header-search::placeholder {
