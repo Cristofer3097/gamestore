@@ -15,6 +15,7 @@ const Header = ({ search, setSearch, filters, setFilters, availableGenres, avail
     ? allGames.filter(g => g.title.toLowerCase().includes(search.toLowerCase())) 
     : [];
 
+    // Cerrar resultados de búsqueda al hacer clic fuera
     useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -101,7 +102,6 @@ const Header = ({ search, setSearch, filters, setFilters, availableGenres, avail
               onFocus={() => setShowResults(true)} 
               className="header-search"
             />
-
             {search.length > 0 && showResults && (
                <SearchResults 
                   results={foundGames} 

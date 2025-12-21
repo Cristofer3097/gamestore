@@ -43,6 +43,8 @@ const GameDescription = ({ onAdd, toggleFavorite, isFavorite }) => {
 
           <p className="desc-text">
             {game.description || "Sin descripción disponible."}
+            <p><strong>Lanzamiento:</strong> {game.releaseDate || 'Fecha desconocida'}</p> 
+
           </p>
 
           <div className="desc-meta">
