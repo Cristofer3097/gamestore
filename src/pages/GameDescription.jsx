@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { gamesMock } from '../data/games';
 import './GameDescription.css';
 
-const GameDescription = ({ onAdd, toggleFavorite, isFavorite }) => {
+const GameDescription = ({ games, onAdd, toggleFavorite, isFavorite }) => {
   const { id } = useParams(); 
   const navigate = useNavigate();
   
-  const game = gamesMock.find(g => g.id === parseInt(id));
+  const safeGames = games || [];
+  const game = safeGames.find(g => g.id === parseInt(id));
 
   if (!game) {
-    return <div style={{color:'white', padding:'50px', textAlign:'center'}}>Juego no encontrado 😕</div>;
+    return <div style={{color:'white', padding:'50px', textAlign:'center'}}>Cargando producto...</div>;
   }
 
   const isFav = isFavorite ? isFavorite(game.id) : false;

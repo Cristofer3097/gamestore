@@ -2,13 +2,37 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Recommended from '../components/Recommended';
 import './Cart.css';
+import { useAuth } from '../context/UserContext';
+import { createSale, createSaleDetail } from '../services/loginService';
 
-const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, updatePlatform, onCheckout, total }) => {
+const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, updatePlatform, onCheckout, total, games }) => {
+    const { user } = useAuth();
   const navigate = useNavigate();
 
-    const handleBuyButton = () => {
-    onCheckout();
-    navigate('/'); 
+  // Manejar el botón de compra
+    const handleBuyButton = async () => {
+    if (!user) {
+      alert("Debes iniciar sesión para comprar 🔒");
+      navigate('/login');
+      return;
+    }
+
+    try {
+      // 1. Crear la venta (Header)
+      const sale = await createSale(user.idUsuario, total, user.token);
+      
+      // 2. Crear los detalles (Items) - Backend requiere uno por uno según estructura actual
+      for (const item of cart) {
+        await createSaleDetail(sale.idVenta, item, user.token);
+      }
+
+      // 3. Limpiar y redirigir
+      onCheckout(); // Limpia el carrito visualmente
+      navigate('/orders'); // Llevar a historial
+    } catch (error) {
+      console.error(error);
+      alert("Error al procesar la compra ❌");
+    }
   };
 
   if (cart.length === 0) {
@@ -98,7 +122,7 @@ const Cart = ({ cart, addToCart, removeFromCart, deleteFromCart, updatePlatform,
       </div>
 
       {/* SECCIÓN RECOMENDADOS */}
-      <Recommended onAdd={addToCart} />
+      <Recommended onAdd={addToCart} games={games} />
     </div>
   );
 };

@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { gamesMock } from '../data/games'; 
 import './Recommended.css'; 
 
-const Recommended = ({ onAdd }) => {
-  
+const Recommended = ({ onAdd, games }) => {
+    const safeGames = games || [];
+
   // Obtener 4 juegos aleatorios
   const randomGames = useMemo(() => {
-    return [...gamesMock]
+    return [...safeGames]
       .sort(() => 0.5 - Math.random())
       .slice(0, 5);
   }, []);

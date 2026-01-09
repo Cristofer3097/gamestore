@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react'; 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { gamesMock } from './data/games';
+import { getAllGames } from './services/gameService';
 import { useCart } from './hooks/useCart';
 import Header from './components/header/Header';
 import Home from './pages/Home'; 
@@ -12,10 +12,25 @@ import { useFavorites } from './hooks/useFavorites';
 import Favorites from './pages/Favorites';
 import Toast from './components/Toast';
 import Footer from './components/Footer';
+import { AuthProvider } from './context/UserContext';
+import Login from './pages/Login';
+import Orders from './pages/Orders';
 
 function App() {
 const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatform, total, cartCount } = useCart();
   const { favorites, toggleFavorite, isFavorite, moveFavorite } = useFavorites();
+
+  // ESTADO PARA LOS JUEGOS DE LA BASE DE DATOS
+  const [dbGames, setDbGames] = useState([]); 
+
+  // CARGAR DATOS DEL BACKEND AL INICIAR
+  useEffect(() => {
+    const fetchGames = async () => {
+      const games = await getAllGames();
+      setDbGames(games);
+    };
+    fetchGames();
+  }, []);
 
   const [toastMsg, setToastMsg] = useState('');
   const [isToastVisible, setIsToastVisible] = useState(false);
@@ -65,13 +80,13 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     minPrice: 0,
-    maxPrice: 100, 
+    maxPrice: 200, 
     genres: [],
     platforms: [],
     sortOrder: 'default'
   });
 
-  const safeGames = gamesMock || [];
+  const safeGames = dbGames || [];
   const allGenres = [...new Set(safeGames.flatMap(g => g.genres || []))];
   const allPlatforms = [...new Set(safeGames.flatMap(g => g.platforms || []))];
 
@@ -131,6 +146,7 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
 }, [search, filters, safeGames]);
 
   return (
+    <AuthProvider>
     <Router>
       <Header 
         search={search} 
@@ -140,8 +156,8 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
         setFilters={setFilters}
         availableGenres={allGenres}
         availablePlatforms={allPlatforms}
-        favCount={favorites.length} 
-        allGames={gamesMock}
+        favCount={favorites.length}
+        allGames={safeGames} 
       />
       <Toast message={toastMsg} isVisible={isToastVisible} />
       <div style={{ minHeight: '80vh' }}>
@@ -154,6 +170,7 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
               onAdd={handleAddToCart} 
               toggleFavorite={handleToggleFavorite} 
               isFavorite={isFavorite} 
+              
             />
           } 
         />
@@ -183,10 +200,13 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
             />
           } 
         />
+        <Route path="/login" element={<Login />} />
+            <Route path="/orders" element={<Orders />} />
         <Route 
           path="/game/:id" 
           element={
             <GameDescription 
+              games={safeGames}
               onAdd={handleAddToCart} 
               toggleFavorite={handleToggleFavorite}
               isFavorite={isFavorite}
@@ -195,9 +215,14 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
         />
 
         <Route 
-          path="/returns" 
-          element={<Returns showToast={handleReturnToast} />} 
-        />
+  path="/returns" 
+  element={
+    <Returns 
+      showToast={handleReturnToast} 
+      games={safeGames}
+    />
+  } 
+/>
 
        <Route 
           path="/cart" 
@@ -210,6 +235,7 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
               updatePlatform={updatePlatform}
               onCheckout={handleCheckout} 
               total={total} 
+              games={safeGames}
             />
           } 
         />
@@ -220,6 +246,7 @@ const { cart, addToCart, removeFromCart, deleteFromCart, clearCart, updatePlatfo
 
       <Footer />
     </Router>
+    </AuthProvider>
   );
 }
   

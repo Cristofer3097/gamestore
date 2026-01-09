@@ -3,8 +3,10 @@ import { useLocation, Link } from 'react-router-dom';
 import FilterMenu from './FilterMenu';
 import './Header.css';
 import SearchResults from './SearchResults';
+import { useAuth } from "../../context/UserContext";
 
 const Header = ({ search, setSearch, filters, setFilters, availableGenres, availablePlatforms, cartCount, favCount, allGames }) => {
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
@@ -132,6 +134,23 @@ const Header = ({ search, setSearch, filters, setFilters, availableGenres, avail
               <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
             <path d="M17 17h-11v-14h-2" /><path d="M6 5l14 1l-1 7h-13" /></svg> <span>{cartCount}</span>
           </Link>
+          <div className="user-menu" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '15px' }}>
+            <Link to={user ? "/orders" : "/login"} className="header-icon-link" style={{textDecoration:'none', display: 'flex', alignItems: 'center', gap: '5px'}}>
+               {/* TU SVG AQUÍ */}
+               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+               
+               <span style={{fontSize: '0.9rem'}}>
+                 {user ? `Hola, ${user.nombre || user.email}` : "Iniciar Sesión"}
+               </span>
+            </Link>
+            
+            {/* Botón de Salir (Solo si hay usuario) */}
+            {user && (
+              <button onClick={logout} style={{background:'none', border:'none', color:'#ff5555', cursor:'pointer', fontSize:'0.8rem', marginLeft:'5px'}}>
+                (Salir)
+              </button>
+            )}
+        </div>
         </div>
       </header>
     </>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './Favorites.css';
 
+
 const Favorites = ({ favorites, onAdd, onRemove, onMove }) => {
   
   if (favorites.length === 0) {

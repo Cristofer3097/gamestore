@@ -1,14 +1,25 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/UserContext';
 
 export const useFavorites = () => {
-  const [favorites, setFavorites] = useState(() => {
-    const savedFavs = localStorage.getItem('gameFavorites');
-    return savedFavs ? JSON.parse(savedFavs) : [];
+  const { user } = useAuth() || {};
+
+  const storageKey = user ? `favs_user_${user.idUsuario}` : 'favs_guest';
+  const [favorites, setFavorites] = useState(() => { 
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : [];
   });
 
+  // Cargar al cambiar de usuario
   useEffect(() => {
-    localStorage.setItem('gameFavorites', JSON.stringify(favorites));
-  }, [favorites]);
+    const saved = localStorage.getItem(storageKey);
+    setFavorites(saved ? JSON.parse(saved) : []);
+  }, [storageKey]);
+
+  // Guardar al cambiar favoritos
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(favorites));
+  }, [favorites, storageKey]);
 
   // Agregar o Quitar de favoritos 
   const toggleFavorite = (game) => {

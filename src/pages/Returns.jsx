@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { gamesMock } from '../data/games';
 import './Returns.css';
+import { useAuth } from '../context/UserContext';
+import { getMyOrders, getAllSaleDetails } from '../services/loginService';
 
+// 1. Recibimos 'games' como prop
 const Returns = ({ showToast }) => {
+  const { user } = useAuth();
   const [selectedGameId, setSelectedGameId] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('');
+  const [purchasedGames, setPurchasedGames] = useState([]);
 
-  // Buscamos el juego seleccionado en la "base de datos"
-  const selectedGame = gamesMock.find(g => g.id === parseInt(selectedGameId));
+  // 2.Buscamos el juego seleccionado en la "base de datos"
+  const safeGames = games || [];
+  const selectedGame = purchasedGames.find(g => g.idVideojuegos === parseInt(selectedGameId));
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -23,6 +28,33 @@ const Returns = ({ showToast }) => {
     setSelectedGameId('');
     setSelectedPlatform('');
   };
+
+  // filtramos la lista basándonos en el historial de compras
+  useEffect(() => {
+    if (user) {
+      // Cargar historial para saber qué puede devolver
+      const fetchData = async () => {
+        const myOrders = await getMyOrders(user.token);
+        const myOrderIds = myOrders.filter(o => o.usuario.idUsuario === user.idUsuario).map(o => o.idVenta);
+        
+        const allDetails = await getAllSaleDetails(user.token);
+        // Filtramos detalles que pertenezcan a mis ventas
+        const myItems = allDetails.filter(d => myOrderIds.includes(d.venta.idVenta));
+        
+        // Extraemos los juegos únicos
+        const uniqueGames = [];
+        const map = new Map();
+        for (const item of myItems) {
+            if(!map.has(item.producto.idVideojuegos)){
+                map.set(item.producto.idVideojuegos, true);
+                uniqueGames.push(item.producto);
+            }
+        }
+        setPurchasedGames(uniqueGames);
+      };
+      fetchData();
+    }
+  }, [user]);
 
   return (
     <div className="returns-page">
@@ -43,12 +75,12 @@ const Returns = ({ showToast }) => {
               className="returns-input"
             >
               <option value="">-- Selecciona un producto --</option>
-              {gamesMock.map(game => (
-                <option key={game.id} value={game.id}>
-                  {game.title}
-                </option>
-              ))}
-            </select>
+        {purchasedGames.map(game => (
+            <option key={game.idVideojuegos} value={game.idVideojuegos}>
+               {game.titulo}
+            </option>
+        ))}
+      </select>
           </div>
 
           <div className="form-group">
