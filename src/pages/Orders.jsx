@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/UserContext';
 import { getMyOrders, getAllSaleDetails } from '../services/loginService';
 import './Orders.css'; 
@@ -7,55 +8,143 @@ const Orders = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [details, setDetails] = useState([]);
+  const [refundedIds, setRefundedIds] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      // Cargar ventas
-      getMyOrders(user.token).then(allSales => {
-        // Filtrar solo las de este usuario
-        const mySales = allSales.filter(s => s.usuario.idUsuario === user.idUsuario);
-        setOrders(mySales);
-      });
+    // 1. Cargar lista de reembolsos
+    const localRefunds = JSON.parse(localStorage.getItem('refunded_orders') || '[]');
+    setRefundedIds(localRefunds);
 
-      // Cargar detalles para saber qué juegos son
-      getAllSaleDetails(user.token).then(setDetails);
+    // 2. Si hay usuario
+    if (user) {
+      const fetchData = async () => {
+         try {
+            setLoading(true);
+            
+            // Peticiones paralelas para mayor velocidad
+            const [allSales, allDetails] = await Promise.all([
+                getMyOrders(user.token),
+                getAllSaleDetails(user.token)
+            ]);
+
+
+            const mySales = allSales.filter(s => s.usuario.idUsuario === user.idUsuario);
+            
+            // Ordenar por fecha (más reciente primero)
+            mySales.sort((a, b) => new Date(b.fechaVenta) - new Date(a.fechaVenta));
+
+            setOrders(mySales);
+            setDetails(allDetails);
+         } catch (err) {
+            console.error("Error cargando pedidos:", err);
+         } finally {
+            setLoading(false);
+         }
+      };
+      fetchData();
+    } else {
+        setLoading(false);
     }
   }, [user]);
 
-  // Función auxiliar para encontrar juegos de una venta
+  // Función auxiliar para encontrar los productos de una venta específica
   const getGamesForSale = (saleId) => {
     return details.filter(d => d.venta.idVenta === saleId);
   };
 
-  if (!user) return <div style={{padding: '50px', textAlign: 'center', color: 'white'}}>Inicia sesión para ver tus órdenes.</div>;
 
-  return (
-    <div className="orders-page" style={{padding: '40px', maxWidth: '1000px', margin: '0 auto', color: 'white'}}>
-      <h2 style={{borderBottom: '1px solid #444', paddingBottom: '20px'}}>Mis Pedidos 📦</h2>
-      
-      {orders.length === 0 ? (
-        <p>No has realizado compras aún.</p>
-      ) : (
-        <div className="orders-list" style={{display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '20px'}}>
-          {orders.map(order => (
-            <div key={order.idVenta} style={{backgroundColor: '#2a2a2a', padding: '20px', borderRadius: '10px', border: '1px solid #444'}}>
-              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}>
-                <span><strong>Orden #{order.idVenta}</strong></span>
-                <span style={{color: '#aaa'}}>{new Date(order.fechaVenta).toLocaleDateString()}</span>
-                <span style={{color: '#4ade80', fontWeight: 'bold'}}>${order.total}</span>
-              </div>
-              
-              <div className="order-items" style={{paddingLeft: '15px', borderLeft: '3px solid #8a2ddc'}}>
-                {getGamesForSale(order.idVenta).map(detail => (
-                  <p key={detail.idDetalleVenta} style={{margin: '5px 0'}}>
-                    • {detail.producto.titulo} (x{detail.cantidad})
-                  </p>
-                ))}
-              </div>
+  // cuando no esta logueado
+  if (!user) {
+    return (
+      <div className="orders-page">
+        <div className="orders-container">
+            <div className="orders-empty">
+                <h2>🔒 Acceso Restringido</h2>
+                <p>Necesitas iniciar sesión para ver tu historial de compras.</p>
+                <Link to="/login" className="producto__btn" style={{display: 'inline-block', maxWidth: '200px', marginTop: '20px', textDecoration: 'none', textAlign: 'center'}}>
+                    Ir a Iniciar Sesión
+                </Link>
             </div>
-          ))}
         </div>
-      )}
+      </div>
+    );
+  }
+
+  // 2. Cargando datos...
+  if (loading) {
+    return (
+      <div className="orders-page">
+        <div className="orders-container">
+            <p style={{textAlign:'center', marginTop:'50px'}}>Cargando tu historial...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. no tiene compras
+  if (orders.length === 0) {
+    return (
+        <div className="orders-page">
+          <div className="orders-container">
+            <h2 className="orders-title">Mis Pedidos 📦</h2>
+            <div className="orders-empty">
+                <h2>No tienes pedidos aún</h2>
+                <p>Parece que no has realizado ninguna compra.</p>
+                <Link to="/catalogo" className="producto__btn" style={{display: 'inline-block', maxWidth: '200px', marginTop: '20px', textDecoration: 'none', textAlign: 'center'}}>
+                    Explorar Catálogo
+                </Link>
+            </div>
+          </div>
+        </div>
+    );
+  }
+
+  // 4. Usuario con compras
+  return (
+    <div className="orders-page">
+      <div className="orders-container">
+        <h2 className="orders-title">Mis Pedidos 📦</h2>
+        
+        <div className="orders-list">
+          {orders.map(order => {
+            // Verifica si esta orden fue reembolsada
+            const isRefunded = refundedIds.includes(order.idVenta);
+
+            return (
+              <div key={order.idVenta} className={`order-card ${isRefunded ? 'refunded' : ''}`}>
+                <div className="order-header">
+                  <div>
+                    <span className="order-id">Orden #{order.idVenta}</span>
+                  </div>
+                  <span className="order-date">
+                    {new Date(order.fechaVenta).toLocaleDateString()} {new Date(order.fechaVenta).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </span>
+                  
+                  {/* ESTADO DEL PEDIDO */}
+                  <div className="status-box">
+                    {isRefunded ? (
+                        <span className="status-label status-refunded">REEMBOLSADO ↩️</span>
+                    ) : (
+                        <span className="status-label status-completed">{order.estado || 'COMPLETADO'}</span>
+                    )}
+                    <span className="order-total">${order.total}</span>
+                  </div>
+                </div>
+                
+                <div className="order-items">
+                  {getGamesForSale(order.idVenta).map((detail, idx) => (
+                    <p key={idx} className="order-item-line">
+                      <span>• {detail.producto.titulo}</span>
+                      <span className="order-item-qty">x{detail.cantidad}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

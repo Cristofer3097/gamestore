@@ -70,7 +70,7 @@ const Catalog = ({ games, addToCart, toggleFavorite, isFavorite, filters, setFil
           ))
         ) : (
           <div className="catalog__empty">
-            <h3>No encontramos juegos. 😔</h3>
+            <h3>No encontramos juegos.</h3>
             <p>Prueba ajustando los filtros o la búsqueda.</p>
           </div>
         )}
