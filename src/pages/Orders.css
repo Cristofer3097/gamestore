@@ -1,122 +1,242 @@
+/* 
+   DISEÑO DE PEDIDOS */
+
 .orders-page {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 40px 20px;
+  padding: 30px 20px;
+  color: #ddd;
   min-height: 80vh;
-  color: white;
-  animation: fadeIn 0.5s ease-in;
+  background-color: #121212; 
+  font-family: Arial, sans-serif;
 }
 
+.orders-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Título principal */
 .orders-title {
-  font-size: 2rem;
-  margin-bottom: 30px;
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  color: white;
+  border-bottom: 1px solid #333;
   padding-bottom: 15px;
-  border-bottom: 1px solid #444;
-  text-align: left;
 }
 
-.orders-empty {
-  text-align: center;
-  padding: 50px;
-  background-color: #2a2a2a;
-  border-radius: 12px;
+/* TARJETA DEL PEDIDO */
+.order-card {
+  background-color: #1e1e1e; 
+  border: 1px solid #333;    
+  border-radius: 8px;       
+  margin-bottom: 25px;
+  overflow: hidden;
+}
+
+/* --- CABECERA GRIS (HORIZONTAL) --- */
+
+.order-header {
+  background-color: #2b2b2b; 
+  padding: 15px 20px;
+  display: flex;           
+  justify-content: space-between; 
+  align-items: flex-start;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
   color: #aaa;
-  border: 1px dashed #444;
 }
 
-.orders-list {
+
+.header-left {
+  display: flex; 
+  gap: 40px;    
+}
+
+.header-col {
+  display: flex;
+  flex-direction: column; 
+}
+
+.label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.value {
+  color: white;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.total-price {
+  color: #b12704; 
+}
+
+/* Parte derecha de la cabecera (ID y Estado) */
+.header-right {
+  text-align: right;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  align-items: flex-end;
 }
 
-/* Tarjeta de Orden Individual */
-.order-card {
-  background-color: #2a2a2a;
-  border-radius: 12px;
-  border: 1px solid #444;
-  padding: 25px;
-  transition: transform 0.2s, box-shadow 0.2s;
+.badge-refund {
+  background: #d32f2f; 
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-top: 5px;
+  display: inline-block;
 }
 
-.order-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  border-color: #555;
+/*PEDIDO */
+
+.order-body {
+  padding: 20px;
 }
 
-/* Cabecera de la tarjeta (ID, Fecha, Total) */
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.delivery-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: white;
+  margin: 0 0 20px 0;
+}
+
+/* --- FILA DEL PRODUCTO (HORIZONTAL) --- */
+.product-row {
+  display: flex;    
+  gap: 25px;        
   margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #3a3a3a;
-  flex-wrap: wrap;
-  gap: 10px;
+  border-bottom: 1px solid #333; 
+  padding-bottom: 20px;
 }
 
-.order-id {
+/* Quitar borde al último producto */
+.product-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* 1. COLUMNA IMAGEN */
+.product-img-box {
+  flex-shrink: 0;
+}
+
+.product-img-box img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  background: #fff;   
+  border-radius: 4px;
+  padding: 5px;
+  border: 1px solid #ccc;
+}
+
+/* 2. COLUMNA DETALLES (CENTRO) */
+.product-details {
+  flex-grow: 1; 
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.product-title {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #4ade80; 
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.product-title:hover {
+  text-decoration: underline;
+}
+
+.product-subtitle {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin: 0;
+}
+
+.product-price {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #fff;
+  color: #b12704;
+  margin: 5px 0 0 0;
 }
 
-.order-meta {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-
-.order-date {
-  color: #aaa;
+.product-qty {
   font-size: 0.9rem;
+  color: #aaa;
 }
 
-.order-total {
-  color: #4ade80; 
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-/* Lista de items dentro de la orden */
-.order-items {
+/* 3. COLUMNA BOTONES (DERECHA) */
+.product-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   gap: 10px;
-  padding-left: 15px;
-  border-left: 4px solid #8a2ddc; 
+  min-width: 220px; 
+  justify-content: center;
 }
 
-.order-item-line {
-  font-size: 1rem;
-  color: #ddd;
-  display: flex;
-  justify-content: space-between;
-}
-
-.order-item-qty {
-  color: #aaa;
+.btn-action {
+  background: linear-gradient(to bottom, #3a3a3a, #2c2c2c);
+  color: white;
+  border: 1px solid #555;
+  padding: 8px 15px;
+  border-radius: 25px; 
+  cursor: pointer;
   font-size: 0.9rem;
-  margin-right: 8px;
+  text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-/* Animación de entrada */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.btn-action:hover {
+  background: linear-gradient(to bottom, #444, #363636);
+  border-color: #777;
 }
 
-@media (max-width: 600px) {
-  .order-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .order-meta {
-    width: 100%;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
+.btn-outline {
+  background: transparent;
+  border: 1px solid #666;
+  box-shadow: none;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #999;
+}
+
+.order-card.refunded {
+    opacity: 0.8;
+    border-color: #552222;
+}
+.order-card.refunded .order-header {
+    background-color: #3a2a2a;
+}
+
+
+.orders-empty, .loading-state {
+    text-align: center;
+    padding: 60px;
+    background: #1e1e1e;
+    border-radius: 8px;
+    border: 1px dashed #444;
+    margin-top: 30px;
+}
+
+.btn-secondary {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 25px;
+    background-color: #8a2ddc;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: bold;
 }

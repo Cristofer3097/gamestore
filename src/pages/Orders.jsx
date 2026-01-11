@@ -1,41 +1,73 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/UserContext';
-import { getMyOrders, getAllSaleDetails } from '../services/loginService';
+import { getMyOrders, getOrderDetails } from '../services/loginService';
 import './Orders.css'; 
 
 const Orders = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
-  const [details, setDetails] = useState([]);
+  const [detailsMap, setDetailsMap] = useState({});
   const [refundedIds, setRefundedIds] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const normalizeOrder = (order) => ({
+    idVenta: order.idVenta || order.id_venta,
+    fechaVenta: order.fechaVenta || order.fecha_venta,
+    total: order.total,
+    estado: order.estado
+  });
+
+  const normalizeDetail = (detail) => ({
+    // Maneja nombres de producto
+    producto: {
+        idVideojuegos: detail.producto?.idVideojuegos || detail.producto?.id_videojuegos,
+        titulo: detail.producto?.titulo,
+        imagenUrl: detail.producto?.imagenUrl || detail.producto?.imagen_url
+    },
+    // Maneja precios y cantidades
+    precioUnitario: detail.precioUnitario || detail.precio_unitario,
+    cantidad: detail.cantidad
+  });
+
   useEffect(() => {
-    // 1. Cargar lista de reembolsos
+    // Cargar devoluciones locales (para marcar visualmente)
     const localRefunds = JSON.parse(localStorage.getItem('refunded_orders') || '[]');
     setRefundedIds(localRefunds);
 
-    // 2. Si hay usuario
-    if (user) {
+    if (user && user.idUsuario) {
       const fetchData = async () => {
          try {
             setLoading(true);
-            
-            // Peticiones paralelas para mayor velocidad
-            const [allSales, allDetails] = await Promise.all([
-                getMyOrders(user.token),
-                getAllSaleDetails(user.token)
-            ]);
 
+            // 1. PEDIR VENTAS
+            const rawSales = await getMyOrders(user.idUsuario, user.token);
 
-            const mySales = allSales.filter(s => s.usuario.idUsuario === user.idUsuario);
-            
-            // Ordenar por fecha (más reciente primero)
-            mySales.sort((a, b) => new Date(b.fechaVenta) - new Date(a.fechaVenta));
+            if (Array.isArray(rawSales) && rawSales.length > 0) {
+                const mySales = rawSales.map(normalizeOrder);
+                
+                // Ordenar: más recientes primero
+                mySales.sort((a, b) => new Date(b.fechaVenta) - new Date(a.fechaVenta));
+                setOrders(mySales);
 
-            setOrders(mySales);
-            setDetails(allDetails);
+                // 2. PEDIR DETALLES DE CADA VENTA
+                const detailsPromises = mySales.map(sale => 
+                    getOrderDetails(sale.idVenta, user.token)
+                    .then(items => ({ idVenta: sale.idVenta, items: items.map(normalizeDetail) }))
+                );
+                
+                const results = await Promise.all(detailsPromises);
+                
+                const newDetailsMap = {};
+                results.forEach(res => {
+                    newDetailsMap[res.idVenta] = res.items;
+                });
+                setDetailsMap(newDetailsMap);
+            } else {
+                setOrders([]);
+            }
+
          } catch (err) {
             console.error("Error cargando pedidos:", err);
          } finally {
@@ -48,97 +80,72 @@ const Orders = () => {
     }
   }, [user]);
 
-  // Función auxiliar para encontrar los productos de una venta específica
-  const getGamesForSale = (saleId) => {
-    return details.filter(d => d.venta.idVenta === saleId);
-  };
+  const handleReturnClick = () => navigate('/returns');
 
+  if (!user) return <div className="orders-page orders-empty"><h2>🔒 Inicia sesión</h2><Link to="/login" className="btn-secondary">Login</Link></div>;
+  if (loading) return <div className="orders-page"><p style={{textAlign:'center', marginTop:'50px', color:'white'}}>Cargando historial...</p></div>;
+  if (orders.length === 0) return <div className="orders-page orders-empty"><h2>No tienes pedidos</h2><Link to="/catalogo" className="btn-secondary">Ir a comprar</Link></div>;
 
-  // cuando no esta logueado
-  if (!user) {
-    return (
-      <div className="orders-page">
-        <div className="orders-container">
-            <div className="orders-empty">
-                <h2>🔒 Acceso Restringido</h2>
-                <p>Necesitas iniciar sesión para ver tu historial de compras.</p>
-                <Link to="/login" className="producto__btn" style={{display: 'inline-block', maxWidth: '200px', marginTop: '20px', textDecoration: 'none', textAlign: 'center'}}>
-                    Ir a Iniciar Sesión
-                </Link>
-            </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. Cargando datos...
-  if (loading) {
-    return (
-      <div className="orders-page">
-        <div className="orders-container">
-            <p style={{textAlign:'center', marginTop:'50px'}}>Cargando tu historial...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 3. no tiene compras
-  if (orders.length === 0) {
-    return (
-        <div className="orders-page">
-          <div className="orders-container">
-            <h2 className="orders-title">Mis Pedidos 📦</h2>
-            <div className="orders-empty">
-                <h2>No tienes pedidos aún</h2>
-                <p>Parece que no has realizado ninguna compra.</p>
-                <Link to="/catalogo" className="producto__btn" style={{display: 'inline-block', maxWidth: '200px', marginTop: '20px', textDecoration: 'none', textAlign: 'center'}}>
-                    Explorar Catálogo
-                </Link>
-            </div>
-          </div>
-        </div>
-    );
-  }
-
-  // 4. Usuario con compras
   return (
     <div className="orders-page">
       <div className="orders-container">
-        <h2 className="orders-title">Mis Pedidos 📦</h2>
-        
+        <h2 className="orders-title">Mis Pedidos</h2>
         <div className="orders-list">
           {orders.map(order => {
-            // Verifica si esta orden fue reembolsada
             const isRefunded = refundedIds.includes(order.idVenta);
+            // Recuperamos los productos usando el ID de la venta
+            const items = detailsMap[order.idVenta] || [];
 
             return (
               <div key={order.idVenta} className={`order-card ${isRefunded ? 'refunded' : ''}`}>
+                
+                {/* CABECERA DEL PEDIDO */}
                 <div className="order-header">
-                  <div>
-                    <span className="order-id">Orden #{order.idVenta}</span>
+                  <div className="header-left">
+                    <div className="header-col">
+                        <span className="label">FECHA</span>
+                        <span className="value">{new Date(order.fechaVenta).toLocaleDateString()}</span>
+                    </div>
+                    <div className="header-col">
+                        <span className="label">TOTAL</span>
+                        <span className="value total-price">${order.total}</span>
+                    </div>
                   </div>
-                  <span className="order-date">
-                    {new Date(order.fechaVenta).toLocaleDateString()} {new Date(order.fechaVenta).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                  </span>
-                  
-                  {/* ESTADO DEL PEDIDO */}
-                  <div className="status-box">
-                    {isRefunded ? (
-                        <span className="status-label status-refunded">REEMBOLSADO ↩️</span>
-                    ) : (
-                        <span className="status-label status-completed">{order.estado || 'COMPLETADO'}</span>
-                    )}
-                    <span className="order-total">${order.total}</span>
+                  <div className="header-right">
+                    <span className="label">PEDIDO # {order.idVenta}</span>
+                    {isRefunded && <span className="badge-refund">REEMBOLSADO</span>}
                   </div>
                 </div>
                 
-                <div className="order-items">
-                  {getGamesForSale(order.idVenta).map((detail, idx) => (
-                    <p key={idx} className="order-item-line">
-                      <span>• {detail.producto.titulo}</span>
-                      <span className="order-item-qty">x{detail.cantidad}</span>
-                    </p>
-                  ))}
+                {/* CUERPO DEL PEDIDO */}
+                <div className="order-body">
+                  <h3 className="delivery-title">{isRefunded ? "Devolución" : "Entregado"}</h3>
+                  
+                  {items.length > 0 ? items.map((detail, idx) => (
+                    <div key={idx} className="product-row">
+                      <div className="product-img-box">
+                        <img 
+                            src={detail.producto?.imagenUrl || "https://placehold.co/100?text=No+Img"} 
+                            alt="Juego" 
+                        />
+                      </div>
+                      <div className="product-details">
+                        <Link to={`/game/${detail.producto?.idVideojuegos}`} className="product-title">
+                            {detail.producto?.titulo || "Producto"}
+                        </Link>
+                        <p className="product-subtitle">Digital / Físico</p>
+                        <p className="product-price">${detail.precioUnitario}</p>
+                        <span className="product-qty">Cantidad: {detail.cantidad}</span>
+                      </div>
+                      <div className="product-actions">
+                        {!isRefunded && (
+                            <button className="btn-action" onClick={handleReturnClick}>
+                                ↺ Devolver
+                            </button>
+                        )}
+                      </div>
+                    </div>
+                  )) : <p style={{padding:'20px', color:'#888'}}>Cargando detalles...</p>}
                 </div>
               </div>
             );

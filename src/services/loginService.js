@@ -1,8 +1,26 @@
+const API_URL = '/api';
+
+// Manejo de respuestas
+async function handleResponse(response) {
+  const data = await response.json().catch(() => ({})); 
+
+  if (!response.ok) {
+    throw data.message || data || `Error ${response.status}: Algo salió mal`;
+  }
+  return data;
+}
+
+// --- AUTENTICACIÓN ---
+
 // 1. Iniciar Sesión
 export const loginUser = async (email, password) => {
   try {
-    const response = await axios.post(`${API_URL}/auth/login`, { email, password });
-    return response.data; 
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    return await handleResponse(response);
   } catch (error) {
     console.error("Error en login:", error);
     throw error;
@@ -12,110 +30,107 @@ export const loginUser = async (email, password) => {
 // 2. Registrarse
 export const registerUser = async (userData) => {
   try {
-    const assignedRole = userData.email.toLowerCase().includes('admin') ? "ADMIN" : "USER";
     const payload = {
       nombre: userData.nombre,
       apellido: userData.apellido,
       email: userData.email,
       password: userData.password,
-      telefono: userData.telefono || "0000000000",
-      rol: assignedRole, 
-      estado: "ACTIVO"
+      telefono: userData.telefono || "0000000000"
     };
-    const response = await axios.post(`${API_URL}/auth/register`, payload);
-    return response.data;
+
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    return await handleResponse(response);
   } catch (error) {
     console.error("Error en registro:", error);
     throw error;
   }
 };
-// 3. Crear Venta (Cabecera)
-export const createSale = async (idUsuario, total, token) => {
+
+// COMPRAS 
+export const createSale = async (userId, total, cartItems, token) => {
   try {
-    console.log("🔵 Creando venta para usuario ID:", idUsuario);
-    
-    const config = { headers: { Authorization: `Bearer ${token}` } };
-    
     const payload = {
-      usuario: { idUsuario: idUsuario }, // Importante: Objeto anidado
-      fechaVenta: new Date().toISOString(), // Formato ISO fecha
+      id_usuario: userId,        
       total: total,
-      metodoPago: "TARJETA",
-      estado: "COMPLETADO"
+      metodo_pago: "TARJETA",     
+      detalle: cartItems.map(item => ({  
+        id_videojuego: item.id,   
+        cantidad: item.quantity,
+        precio_unitario: item.price, 
+        subtotal: item.price * item.quantity
+      }))
     };
 
-    const response = await axios.post(`${API_URL}/venta`, payload, config);
-    console.log("🟢 Venta creada exitosamente:", response.data);
-    return response.data; // Retorna la venta creada con su idVenta
+    const response = await fetch(`${API_URL}/venta`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(payload)
+    });
+    return await handleResponse(response);
   } catch (error) {
-    console.error("🔴 Error creando venta:", error.response?.data || error);
+    console.error("Error creando venta:", error);
     throw error;
   }
 };
+export const createSaleDetail = async () => {};
 
-// 4. Crear Detalle de Venta (Items)
-export const createSaleDetail = async (idVenta, item, token) => {
+// HISTORIAL 
+
+export const getMyOrders = async (userId, token) => {
   try {
-    // console.log("🔵 Agregando detalle para venta ID:", idVenta, "Producto:", item.title);
-    
-    const config = { headers: { Authorization: `Bearer ${token}` } };
-    
-    // OJO AQUÍ: 'item.id' es el ID que usa React, pero Java espera 'idVideojuegos' dentro de un objeto 'producto'
-    const payload = {
-      venta: { idVenta: idVenta },
-      producto: { idVideojuegos: item.id }, 
-      cantidad: item.quantity,
-      precioUnitario: item.price,
-      subtotal: item.price * item.quantity
-    };
-
-    const response = await axios.post(`${API_URL}/detalle-venta`, payload, config);
-    return response.data;
-  } catch (error) {
-    console.error("🔴 Error creando detalle de venta:", error.response?.data || error);
-    throw error;
-  }
-};
-
-// 5. Obtener todas las ventas 
-export const getMyOrders = async (token) => {
-  try {
-    const config = { headers: { Authorization: `Bearer ${token}` } };
-    const response = await axios.get(`${API_URL}/venta`, config);
-    return response.data;
+    const response = await fetch(`${API_URL}/venta/ByIdUsuario/${userId}`, {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return await handleResponse(response);
   } catch (error) {
     console.error("Error obteniendo ordenes:", error);
     return [];
   }
 };
-// 6. Obtener detalles de ventas 
 
-export const getAllSaleDetails = async (token) => {
+export const getOrderDetails = async (saleId, token) => {
   try {
-    const config = { headers: { Authorization: `Bearer ${token}` } };
-    const response = await axios.get(`${API_URL}/detalle-venta`, config);
-    return response.data;
+    const response = await fetch(`${API_URL}/detalle-venta/ByIdVenta/${saleId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return await handleResponse(response);
   } catch (error) {
     console.error("Error obteniendo detalles:", error);
     return [];
   }
 };
 
-// 7. DEVOLUCIONES 
+export const getAllSaleDetails = async () => [];
+
+// DEVOLUCIONES 
 
 export const createReturn = async (returnData, token) => {
   try {
-    const config = { headers: { Authorization: `Bearer ${token}` } };
     const payload = {
-      usuario: { idUsuario: returnData.idUsuario },
-      factura: { idFactura: 1 }, // ID Mock temporal
-      fechaDevolucion: new Date().toISOString(),
+      idUsuario: returnData.idUsuario,
+      idFactura: returnData.saleId, //
       descripcion: returnData.motivo,
-      observacion: "Solicitud Web",
-      estado: "PENDIENTE"
+      estado: "PENDIENTE",
+      observacion: "Web"
     };
-    const response = await axios.post(`${API_URL}/devoluciones`, payload, config);
-    return response.data;
+
+    const response = await fetch(`${API_URL}/devoluciones`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(payload)
+    });
+    return await handleResponse(response);
   } catch (error) {
     console.error("Error creando devolución:", error);
     throw error;

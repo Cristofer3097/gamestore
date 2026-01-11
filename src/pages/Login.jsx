@@ -14,17 +14,36 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
     try {
       let data;
+      console.log("Intentando conectar con:", formData); // 🔍 DEBUG
+
       if (isLogin) {
         data = await loginUser(formData.email, formData.password);
       } else {
         data = await registerUser(formData);
       }
-      login(data); // Guardar usuario en contexto
-      navigate('/'); // Ir al inicio
+      
+      console.log("Respuesta del servidor:", data); // 🔍 DEBUG
+
+      // Validación robusta
+      if (!data || !data.token) {
+        throw new Error("El servidor no devolvió un token válido.");
+      }
+
+      login(data);
+      alert(`¡Bienvenido ${data.nombre || 'Usuario'}!`);
+      navigate('/'); 
+      
     } catch (err) {
-      setError('Error: Verifique sus datos o intente nuevamente.');
+      console.error("Error completo:", err); // 🔍 DEBUG
+      const msg = err.message || "Error desconocido";
+      
+      if(msg.includes("403")) setError("Correo o contraseña incorrectos");
+      else if(msg.includes("401")) setError("No autorizado");
+      else if(msg.includes("Failed to fetch")) setError("No se pudo conectar con el Backend (¿Está encendido Docker?)");
+      else setError(msg);
     }
   };
 
@@ -35,7 +54,7 @@ const Login = () => {
         <div className="login-image">
           <div className="login-overlay">
             <h2>{isLogin ? "Bienvenido de nuevo" : "Únete a la aventura"}</h2>
-            <p>Descubre miles de juegos al mejor precio.</p>
+            <p>Descubre los mejores videojuegos y ofertas exclusivas.</p>
           </div>
         </div>
 
@@ -59,7 +78,7 @@ const Login = () => {
             <input type="password" placeholder="Contraseña" required 
                onChange={e => setFormData({...formData, password: e.target.value})} />
 
-            {error && <p className="error-msg">{error}</p>}
+            {error && <p className="error-msg" style={{color: '#ff5555', marginTop: '10px'}}>{error}</p>}
 
             <button type="submit" className="auth-btn">
               {isLogin ? "Ingresar" : "Registrarse"}

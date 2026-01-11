@@ -26,6 +26,7 @@ const Footer = () => {
             <Link to="/" className="footer-link">Inicio</Link>
             <Link to="/catalogo" className="footer-link">Catálogo</Link>
             <Link to="/cart" className="footer-link">Carrito</Link>
+            <Link to="/orders" className="footer-link">Pedidos</Link>
             <Link to="/favorites" className="footer-link">Deseados</Link>
             <Link to="/returns" className="footer-link highlight">Devoluciones</Link>
           </nav>
@@ -34,7 +35,7 @@ const Footer = () => {
         <hr className="footer-divider" />
 
         <div className="footer-bottom">
-          <p>&copy; 2025 Pagina creada por Abel Cristofer</p>
+          <p>&copy; 2025 Pagina creada por el Equipo E 040</p>
 
           
             

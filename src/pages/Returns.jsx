@@ -1,42 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import './Returns.css';
 import { useAuth } from '../context/UserContext';
-import { getMyOrders, getAllSaleDetails } from '../services/loginService';
+import { getMyOrders, getOrderDetails } from '../services/loginService';
 
-// Componente de Devoluciones
 const Returns = ({ showToast }) => {
   const { user } = useAuth();
-  const [selectedGameId, setSelectedGameId] = useState('');
+  const [selectedUniqueKey, setSelectedUniqueKey] = useState('');
   const [purchasedGames, setPurchasedGames] = useState([]);
 
+  const getOrderId = (order) => order.idVenta || order.id_venta;
+  
+  const getProductData = (item) => {
+    const prod = item.producto || {};
+    return {
+      id: prod.idVideojuegos || prod.id_videojuegos || item.id_videojuego,
+      titulo: prod.titulo || "Producto sin nombre"
+    };
+  };
 
-  // filtramos la lista basándonos en el historial de compras
   useEffect(() => {
-    if (user) {
+    if (user && user.idUsuario) {
       const fetchData = async () => {
         try {
-          const myOrders = await getMyOrders(user.token);
-          const allDetails = await getAllSaleDetails(user.token);
+          const myOrders = await getMyOrders(user.idUsuario, user.token);
           
-          // Filtrar mis compras
-          const myOrderIds = myOrders.filter(o => o.usuario.idUsuario === user.idUsuario).map(o => o.idVenta);
-          const myItems = allDetails.filter(d => myOrderIds.includes(d.venta.idVenta));
+          if(!Array.isArray(myOrders)) return;
+
+          const detailsPromises = myOrders.map(order => {
+             const saleId = getOrderId(order);
+             if (!saleId) return Promise.resolve([]);
+
+             return getOrderDetails(saleId, user.token)
+               .then(items => items.map(item => ({ ...item, saleId })));
+          });
+
+          const results = await Promise.all(detailsPromises);
+          const allMyItems = results.flat();
+
+          const gamesList = allMyItems.map(item => {
+             const productData = getProductData(item);
+             return {
+               idVideojuegos: productData.id,
+               titulo: productData.titulo,
+               saleId: item.saleId,
+               uniqueKey: `${productData.id}-${item.saleId}` 
+             };
+          });
           
-          // Preparar lista para el select (Guardamos también el ID de venta para saber cuál reembolsar)
-          const uniqueGames = myItems.map(item => ({
-             ...item.producto, 
-             saleId: item.venta.idVenta 
-          }));
-          
-          if (uniqueGames.length === 0) {
-             setPurchasedGames([
-                 { idVideojuegos: 999, titulo: "Juego Simulado (Prueba)", price: 59.99, saleId: 9999 }
-             ]);
-          } else {
-             setPurchasedGames(uniqueGames);
-          }
+          const validGames = gamesList.filter(g => g.idVideojuegos);
+          setPurchasedGames(validGames);
+
         } catch (error) {
-          console.error("Error cargando historial", error);
+          console.error("Error cargando compras:", error);
         }
       };
       fetchData();
@@ -45,23 +60,28 @@ const Returns = ({ showToast }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!selectedGameId) {
-        showToast("⚠️ Por favor selecciona un producto.");
-        return;
-    }
-
-    const gameToReturn = purchasedGames.find(g => g.idVideojuegos === parseInt(selectedGameId));
-
-    // --- SIMULACIÓN DE REEMBOLSO ---
-
-    const refundedList = JSON.parse(localStorage.getItem('refunded_orders') || '[]');
-    refundedList.push(gameToReturn.saleId);
-    localStorage.setItem('refunded_orders', JSON.stringify(refundedList));
-
-    // Mensaje solicitado por la actividad
-    showToast(`🚚 Solicitud recibida. La paquetería pasará a recoger tu pedido de "${gameToReturn.titulo}" pronto.`);
+    if (!selectedUniqueKey) return;
     
-    setSelectedGameId('');
+    // Buscamos por la llave única, así no confundimos pedidos
+    const gameToReturn = purchasedGames.find(g => g.uniqueKey === selectedUniqueKey);
+    
+    if (gameToReturn) {
+        // 1. Guardar en LocalStorage para que Orders.jsx lo detecte
+        const currentRefunds = JSON.parse(localStorage.getItem('refunded_orders') || '[]');
+        if (!currentRefunds.includes(gameToReturn.saleId)) {
+            currentRefunds.push(gameToReturn.saleId);
+            localStorage.setItem('refunded_orders', JSON.stringify(currentRefunds));
+        }
+
+        // 2. Mostrar mensaje
+        if (showToast) {
+            showToast(`🚚 Reembolso procesado para: ${gameToReturn.titulo} (Orden #${gameToReturn.saleId})`);
+        } else {
+            alert(`Reembolso procesado para: ${gameToReturn.titulo}`);
+        }
+    }
+    
+    setSelectedUniqueKey('');
   };
 
   return (
@@ -74,13 +94,15 @@ const Returns = ({ showToast }) => {
           <div className="form-group">
             <label>Producto a devolver:</label>
             <select 
-              value={selectedGameId} 
-              onChange={(e) => setSelectedGameId(e.target.value)}
+              // Usamos la llave única como valor
+              value={selectedUniqueKey} 
+              onChange={(e) => setSelectedUniqueKey(e.target.value)}
               className="returns-input"
             >
               <option value="">-- Selecciona de tus compras --</option>
-              {purchasedGames.map((game, index) => (
-                <option key={`${game.idVideojuegos}-${index}`} value={game.idVideojuegos}>
+              {purchasedGames.map((game) => (
+                // La llave única distingue el mismo juego en diferentes pedidos
+                <option key={game.uniqueKey} value={game.uniqueKey}>
                    {game.titulo} (Orden #{game.saleId})
                 </option>
               ))}
@@ -88,7 +110,7 @@ const Returns = ({ showToast }) => {
           </div>
 
           <div className="security-note">
-            <strong>📦 Nota importante:</strong> Envuelve el paquete en una caja asegurada antes de entregarlo al repartidor.
+            <strong>📦 Nota:</strong> Asegúrate de que el producto esté en buen estado.
           </div>
 
           <button type="submit" className="returns-btn">
