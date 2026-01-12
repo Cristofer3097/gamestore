@@ -114,14 +114,24 @@ export const getAllSaleDetails = async () => [];
 
 export const createReturn = async (returnData, token) => {
   try {
+    const uId = parseInt(returnData.idUsuario);
+    const sId = parseInt(returnData.saleId);
+
+    // Validación básica para evitar enviar NaNs
+    if (isNaN(uId) || isNaN(sId)) {
+       throw new Error("Datos de usuario o venta inválidos.");
+    }
+
+
     const payload = {
-      id_usuario: parseInt(returnData.idUsuario),  
-      id_factura: parseInt(returnData.saleId),    
+      idUsuario: uId,     
+      idFactura: sId,     
       descripcion: returnData.motivo || "Devolución web",    
       estado: "PENDIENTE",
       observacion: "Web"
     };
 
+    console.log("Enviando devolución (CamelCase):", payload);
 
     const response = await fetch(`${API_URL}/devoluciones`, {
       method: 'POST',
