@@ -1,4 +1,4 @@
-const API_URL = 'https://videojuegos-backend-y87f.onrender.com';
+const API_URL = 'https://videojuegos-backend-y87f.onrender.com/api';
 const mapBackendToFrontend = (backendProduct) => {
   let imageSrc = backendProduct.imagenUrl;
 
