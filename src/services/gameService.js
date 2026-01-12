@@ -2,7 +2,7 @@ const API_URL = 'https://videojuegos-backend-y87f.onrender.com/api';
 
 const mapBackendToFrontend = (backendProduct) => {
   // 1. BLINDAJE DE IMAGEN
-  let imageSrc = backendProduct.imagenUrl || backendProduct.imagen_url || backendProduct.urlImagen || backendProduct.imagen || "";
+  let imageSrc = backendProduct.imagenUrl;
 
   if (imageSrc) {
     imageSrc = imageSrc.trim();
@@ -15,30 +15,27 @@ const mapBackendToFrontend = (backendProduct) => {
   }
 
   const genresArray = backendProduct.genero 
-      ? (typeof backendProduct.genero === 'string' ? backendProduct.genero.split(',') : backendProduct.genero)
+      ? backendProduct.genero.split(',').map(g => g.trim()) 
       : ["General"];
 
   const platformsArray = backendProduct.plataforma 
-      ? (typeof backendProduct.plataforma === 'string' ? backendProduct.plataforma.split(',') : backendProduct.plataforma)
+      ? backendProduct.plataforma.split(',').map(p => p.trim()) 
       : ["PC"];
 
   // 3. RETORNO FINAL (Mapeo Inteligente)
   return {
-    id: backendProduct.idVideojuegos || backendProduct.id_videojuegos || backendProduct.id || backendProduct.idVideojuego, 
+    id: backendProduct.idVideojuegos,     
+    title: backendProduct.titulo,     
+    price: backendProduct.precio,         
+    description: backendProduct.descripcion || "Sin descripción.", 
+    stock: backendProduct.stock,          
+    releaseDate: backendProduct.fechaLanzamiento, 
+    state: backendProduct.estado,      
     
-    title: backendProduct.titulo || backendProduct.title || backendProduct.nombre || "Sin Título",     
-    
-    price: backendProduct.precio || backendProduct.price || 0,     
-    
-    // DESCRIPCIÓN
-    description: backendProduct.descripcion || backendProduct.description || "Sin descripción disponible.",
-    
-    // RESTO DE CAMPOS
-    genres: Array.isArray(genresArray) ? genresArray : [String(genresArray)],
-    platforms: Array.isArray(platformsArray) ? platformsArray : [String(platformsArray)],
-    image: imageSrc,  
-    stock: backendProduct.stock || 0,
-    releaseDate: backendProduct.fechaLanzamiento || backendProduct.fecha_lanzamiento || "2024-01-01"
+    // Campos transformados para React
+    genres: genresArray,
+    platforms: platformsArray,
+    image: imageSrc 
   };
 };
 
