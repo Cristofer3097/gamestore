@@ -31,7 +31,10 @@
   margin-bottom: 25px;
   overflow: hidden;
 }
-
+.order-card.refunded-full {
+  border-color: #552222;
+  opacity: 0.9;
+}
 /* --- CABECERA GRIS (HORIZONTAL) --- */
 
 .order-header {
@@ -90,13 +93,25 @@
   margin-top: 5px;
   display: inline-block;
 }
+.returned-badge {
+  color: #ff5555; 
+  font-weight: bold; 
+  border: 1px solid #ff5555; 
+  padding: 6px 12px; 
+  border-radius: 20px;
+  display: inline-block;
+  font-size: 0.9rem;
+  background-color: rgba(255, 85, 85, 0.1);
+}
 
 /*PEDIDO */
 
 .order-body {
   padding: 20px;
+}.orders-empty {
+  text-align: center;
+  margin-top: 50px;
 }
-
 .delivery-title {
   font-size: 1.3rem;
   font-weight: bold;

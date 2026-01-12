@@ -115,12 +115,13 @@ export const getAllSaleDetails = async () => [];
 export const createReturn = async (returnData, token) => {
   try {
     const payload = {
-      idUsuario: returnData.idUsuario,
-      idFactura: returnData.saleId, //
-      descripcion: returnData.motivo,
+      id_usuario: parseInt(returnData.idUsuario),  
+      id_factura: parseInt(returnData.saleId),    
+      descripcion: returnData.motivo || "Devolución web",    
       estado: "PENDIENTE",
       observacion: "Web"
     };
+
 
     const response = await fetch(`${API_URL}/devoluciones`, {
       method: 'POST',
@@ -134,5 +135,18 @@ export const createReturn = async (returnData, token) => {
   } catch (error) {
     console.error("Error creando devolución:", error);
     throw error;
+  }
+};
+
+export const getUserReturns = async (userId, token) => {
+  try {
+    const response = await fetch(`${API_URL}/devoluciones/ByIdUsuario/${userId}`, {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Error obteniendo devoluciones:", error);
+    return [];
   }
 };
