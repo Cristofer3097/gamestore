@@ -1,8 +1,9 @@
 const API_URL = 'https://videojuegos-backend-y87f.onrender.com/api';
 
 const mapBackendToFrontend = (backendProduct) => {
-  let imageSrc = backendProduct.imagenUrl || backendProduct.imagen_url; 
-
+  // 1. Manejo de IMAGEN (Seguro contra nulos)
+  let imageSrc = backendProduct.imagenUrl || backendProduct.imagen_url || "";
+  
   if (imageSrc) {
     imageSrc = imageSrc.trim();
     if (!imageSrc.startsWith('http') && !imageSrc.startsWith('data:image')) {
@@ -13,7 +14,7 @@ const mapBackendToFrontend = (backendProduct) => {
     imageSrc = "https://placehold.co/300x400?text=No+Img"; 
   }
 
-  // 2. Manejo de ARRAYS (Género y Plataforma)
+  // 2. Manejo de ARRAYS 
   const genresArray = backendProduct.genero 
       ? backendProduct.genero.split(',').map(g => g.trim()) 
       : ["General"];
@@ -22,9 +23,9 @@ const mapBackendToFrontend = (backendProduct) => {
       ? backendProduct.plataforma.split(',').map(p => p.trim()) 
       : ["PC"];
 
-  // 3. RETORNO SEGURO 
+  // 3. MAPEO ROBUSTO 
   return {
-    id: backendProduct.idVideojuegos || backendProduct.id_videojuegos || backendProduct.id, 
+    id: backendProduct.idVideojuegos || backendProduct.idVideojuego || backendProduct.id_videojuegos || backendProduct.id, 
     title: backendProduct.titulo,     
     price: backendProduct.precio,     
     description: backendProduct.descripcion || "Sin descripción disponible.",
@@ -39,12 +40,12 @@ const mapBackendToFrontend = (backendProduct) => {
 // OBTENER JUEGOS
 export const getAllGames = async () => {
   try {
-    console.log("📡 Solicitando juegos a:", `${API_URL}/producto`);
-    
+    console.log("📡 Intentando conectar a:", `${API_URL}/producto`);
+ 
     let response = await fetch(`${API_URL}/producto`);
 
     if (response.status === 404) {
-        console.warn("⚠️ /producto dio 404. Intentando con /productos...");
+        console.warn("⚠️ '/producto' no existe. Probando '/productos'...");
         response = await fetch(`${API_URL}/productos`);
     }
 
@@ -53,10 +54,10 @@ export const getAllGames = async () => {
     }
     
     const data = await response.json();
-    console.log("📦 Datos recibidos del Backend:", data); 
+    console.log("📦 Juegos recibidos:", data); 
 
     if (!Array.isArray(data)) {
-        console.error("❌ El backend no devolvió una lista (Array). Recibimos:", data);
+        console.error("❌ El backend no devolvió una lista, devolvió:", data);
         return [];
     }
 
