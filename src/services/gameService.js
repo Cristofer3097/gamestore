@@ -1,3 +1,4 @@
+const API_URL = 'https://videojuegos-backend-y87f.onrender.com/api';
 const mapBackendToFrontend = (backendProduct) => {
   let imageSrc = backendProduct.imagenUrl;
 
@@ -45,7 +46,7 @@ const mapBackendToFrontend = (backendProduct) => {
 // obtener los juegos desde el backend
 export const getAllGames = async () => {
   try {
-    const response = await fetch('/api/producto');
+    const response = await fetch(`${API_URL}/producto`);
     
     if (!response.ok) {
       console.warn("Backend retornó error:", response.status);

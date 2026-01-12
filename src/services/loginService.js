@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = 'https://videojuegos-backend-y87f.onrender.com/api';
 
 // Manejo de respuestas
 async function handleResponse(response) {
